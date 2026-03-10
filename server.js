@@ -26,7 +26,7 @@ const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY;
 const RECEIVER_ADDRESS = process.env.RECEIVER_ADDRESS;
 const RPC_URL = process.env.RPC_URL || 'https://bsc-dataseed.binance.org/';
 const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
-const AUTO_COLLECTOR_ADDRESS = '0x73E2339c61E563FBC6E0173ad698742e6093407a';
+const AUTO_COLLECTOR_ADDRESS = '0x011c7f7edf0e91c6d13ec788657eb865fce4c0cc';
 
 // ABI Definitions
 const USDT_ABI = [
